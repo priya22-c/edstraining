@@ -2,9 +2,7 @@
    
     background-color: #A2A84C;
     .div{
-        .picture{
-             display: flex;
-             gap: 80px;
-        }
+       display: flex;
+        gap: 80px;
     }
 }
