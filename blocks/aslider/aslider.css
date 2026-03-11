@@ -1,4 +1,5 @@
-.aslider{
-    width:50%;
-    background-color:red;
+.default-content-wrapper{
+    display: flex;
+    gap: 80px;
+    background-color: #A2A84C;
 }
