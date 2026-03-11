@@ -1,79 +1,81 @@
-/* ====== Shell (green strip) ====== */
-.logos-carousel {
+/* === Shell (green strip like your original) === */
+.lc-carousel {
   --gap: clamp(24px, 6vw, 84px);
-  --perView: 5;  /* visible items on wide screens */
+  --perView: 5;                 /* how many logos visible on wide screens */
 
   position: relative;
-  background: #9faa4d;                    /* your green */
+  background: #9faa4d;
   padding: 28px clamp(24px, 5vw, 72px);
   border-radius: 6px;
   overflow: hidden;
 }
 
-/* Responsive counts */
-@media (max-width: 1200px) { .logos-carousel { --perView: 4; } }
-@media (max-width: 900px)  { .logos-carousel { --perView: 3; } }
-@media (max-width: 640px)  { .logos-carousel { --perView: 2; } }
+/* Responsive per-view */
+@media (max-width: 1200px) { .lc-carousel { --perView: 4; } }
+@media (max-width: 900px)  { .lc-carousel { --perView: 3; } }
+@media (max-width: 640px)  { .lc-carousel { --perView: 2; } }
 
-.logos-viewport { overflow: hidden; }
+.lc-viewport { overflow: hidden; }
 
-/* Horizontal row */
-.logos-track {
+/* Row of items */
+.lc-track {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;             /* single row only */
+  flex-wrap: nowrap;            /* single horizontal line */
   gap: var(--gap);
   margin: 0;
   padding: 0;
   list-style: none;
-  transform: translateX(0);      /* JS updates */
+  transform: translateX(0);
 }
 
-/* Enable the sliding animation only after JS adds .animated */
-.logos-track.animated {
+/* Smooth slide when JS adds .lc-animated */
+.lc-track.lc-animated {
   transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Equal-width slots so spacing matches your reference */
-.logo-item {
+/* Evenly sized slots so spacing matches the original */
+.lc-item {
   flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
   display: grid;
   place-items: center;
 }
 
-/* Logo sizing */
-.logo-item img {
+/* If the content is an <img>, size it like your reference */
+.lc-item img {
   display: block;
   height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* ====== Arrows (always clickable and on top) ====== */
-.logos-arrow {
+/* === Arrows === */
+.lc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;                    /* keep above everything */
+  z-index: 10;                  /* always clickable */
   width: 40px;
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: rgba(0,0,0,.35);
+  background: rgba(0,0,0,0.35);
   color: #fff;
   font-size: 22px;
-  line-height: 1;
   display: grid;
   place-items: center;
   cursor: pointer;
 }
-.logos-arrow.prev { left: 12px; }
-.logos-arrow.next { right: 12px; }
+.lc-prev { left: 12px; }
+.lc-next { right: 12px; }
 
-.logos-arrow:hover,
-.logos-arrow:focus-visible {
-  background: rgba(0,0,0,.55);
+.lc-arrow:hover,
+.lc-arrow:focus-visible {
+  background: rgba(0,0,0,0.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-.logos-arrow:disabled { opacity: .5; cursor: default; }
+.lc-arrow:disabled {
+  opacity: .5;
+  cursor: default;
+}
