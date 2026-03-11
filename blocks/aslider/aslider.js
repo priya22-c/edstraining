@@ -1,6 +1,6 @@
-// logos-carousel-paged.js
+// logos-carousel.js
 export default function decorate(block) {
-  // Keep your original class additions
+  // --- Keep your original class additions ---
   const first = block.children[0];
   if (!first) return;
   first.classList.add('nav-head');
@@ -8,13 +8,16 @@ export default function decorate(block) {
   const second = block.children[1];
   if (second) second.classList.add('nav-head-2');
 
-  // 1) Collect logo items. Prefer <img>; if none, use direct children.
-  let sourceNodes = Array.from(block.querySelectorAll('img'));
-  if (!sourceNodes.length) sourceNodes = Array.from(block.children);
+  // --- Collect ALL <img> inside the block (flatten), else fallback to children ---
+  let itemsSrc = Array.from(block.querySelectorAll('img'));
+  if (!itemsSrc.length) {
+    // if no <img>, treat each direct child as an item
+    itemsSrc = Array.from(block.children);
+  }
 
-  // Optional: de‑dupe images by src
+  // Deduplicate by src if they appear twice
   const seen = new Set();
-  const items = sourceNodes.filter((n) => {
+  const itemsEls = itemsSrc.filter((n) => {
     if (n.tagName === 'IMG') {
       const src = n.currentSrc || n.src;
       if (seen.has(src)) return false;
@@ -22,18 +25,33 @@ export default function decorate(block) {
     }
     return true;
   });
-  if (!items.length) return;
 
-  // 2) Build shell
-  const shell = document.createElement('div');
-  shell.className = 'lc-shell';
-  shell.tabIndex = 0; // keyboard arrows
+  if (!itemsEls.length) return;
+
+  // --- Build structure: carousel -> prev + viewport(track(items)) + next ---
+  const carousel = document.createElement('div');
+  carousel.className = 'lc-carousel';
+  carousel.tabIndex = 0; // keyboard arrows
 
   const viewport = document.createElement('div');
   viewport.className = 'lc-viewport';
 
-  const track = document.createElement('div');
+  const track = document.createElement('ul');
   track.className = 'lc-track';
+
+  itemsEls.forEach((el) => {
+    const li = document.createElement('li');
+    li.className = 'lc-item';
+
+    // Move existing content into the slot (no cloning to avoid duplicates)
+    if (el.tagName === 'IMG') {
+      li.appendChild(el);
+    } else {
+      li.appendChild(el);
+    }
+
+    track.appendChild(li);
+  });
 
   viewport.appendChild(track);
 
@@ -49,62 +67,70 @@ export default function decorate(block) {
   next.setAttribute('aria-label', 'Next');
   next.innerHTML = '›';
 
-  // Replace original content
-  block.replaceChildren(shell);
-  shell.append(prev, viewport, next);
+  // Replace original block content with our carousel
+  block.replaceChildren(carousel);
+  carousel.append(prev, viewport, next);
 
-  // 3) Pagination: group items into pages (rows × perView per page)
-  const getConfig = () => {
-    const cs = getComputedStyle(shell);
-    const rows = Number(cs.getPropertyValue('--rows').trim() || 1) || 1;      // default 1 row
-    const perView = Number(cs.getPropertyValue('--perView').trim() || 5) || 5; // default 5 per row
-    const gapX = cs.getPropertyValue('--gapX').trim();
-    const gapY = cs.getPropertyValue('--gapY').trim();
-    return { rows, perView, gapX, gapY };
+  // -------- Carousel logic (page-by-page sliding) --------
+  const items = Array.from(track.children);
+  const total = items.length;
+
+  // Read --perView from CSS (how many visible per page)
+  const perView = () => {
+    const raw = getComputedStyle(carousel).getPropertyValue('--perView').trim();
+    const n = Number(raw || 5);
+    return Number.isFinite(n) && n > 0 ? n : 5;
   };
 
-  function buildPages() {
-    track.innerHTML = '';
-    const { rows, perView } = getConfig();
-    const pageSize = rows * perView;
-    const total = items.length;
-    const pagesCount = Math.max(1, Math.ceil(total / pageSize));
+  let index = 0;      // left-most visible item index
+  let stepPx = 0;     // pixels to move for ONE item (width + gap)
+  let maxIndex = 0;   // last valid left-most index (for page step we jump perView)
 
-    let idx = 0;
-    for (let p = 0; p < pagesCount; p += 1) {
-      const page = document.createElement('ul');
-      page.className = 'lc-page';
-      // Fill this page with up to pageSize items
-      for (let i = 0; i < pageSize && idx < total; i += 1, idx += 1) {
-        const li = document.createElement('li');
-        li.className = 'lc-cell';
-        // MOVE the existing node (no clone) to avoid duplicates
-        li.appendChild(items[idx]);
-        page.appendChild(li);
-      }
-      track.appendChild(page);
+  function compute() {
+    // Measure one slot after layout
+    const firstSlot = items[0];
+    const rect = firstSlot.getBoundingClientRect();
+    if (rect.width === 0) {
+      requestAnimationFrame(compute);
+      return;
     }
+    const cs = getComputedStyle(track);
+    const gap = parseFloat(cs.gap || cs.columnGap || '0') || 0;
+    stepPx = rect.width + gap;
+
+    const pv = perView();
+    maxIndex = Math.max(0, Math.ceil(total / pv) - 1); // page count - 1
+
+    // Keep current page in bounds
+    index = Math.max(0, Math.min(index, maxIndex));
+    apply();
   }
 
-  buildPages();
+  function apply() {
+    // Translate by full "pages": pageIndex * pageWidth
+    const pv = perView();
+    const distance = (track.children[0].getBoundingClientRect().width + (parseFloat(getComputedStyle(track).gap) || 0)) * pv;
+    track.style.transform = `translateX(${-index * distance}px)`;
 
-  // 4) Sliding logic — page-by-page
-  let page = 0;
-
-  function pagesTotal() {
-    return track.children.length || 1;
+    // Enable/disable arrows at edges
+    prev.disabled = index === 0;
+    next.disabled = index === maxIndex;
   }
 
-  function goTo(p) {
-    const max = pagesTotal() - 1;
-    page = Math.max(0, Math.min(p, max));
-    track.style.transform = `translateX(${-page * 100}%)`;
-    prev.disabled = page === 0;
-    next.disabled = page === max;
-  }
+  // Click handlers: move one PAGE (the visible set)
+  prev.addEventListener('click', () => { index = Math.max(0, index - 1); apply(); });
+  next.addEventListener('click', () => { index = Math.min(maxIndex, index + 1); apply(); });
 
-  prev.addEventListener('click', () => goTo(page - 1));
-  next.addEventListener('click', () => goTo(page + 1));
+  // Keyboard support when the carousel has focus
+  carousel.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); prev.click(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+  });
 
-  shell.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(page - 1); }
+  // Recompute on resize (keeps page width aligned)
+  window.addEventListener('resize', compute, { passive: true });
+
+  // Init: compute first, then enable smooth transition
+  compute();
+  requestAnimationFrame(() => track.classList.add('lc-animated'));
+}
