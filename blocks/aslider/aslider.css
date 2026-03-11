@@ -1,75 +1,80 @@
-/* --- Generic hide rule used by the JS --- */
-[hidden] {
-  display: none !important;
-}
-
-/* --- Carousel viewport (the JS creates this element) --- */
-div[role="region"][aria-roledescription="carousel"] {
+/* Container */
+.logos-carousel {
   position: relative;
+  background: #9faa4d; /* the green bar from your reference */
+  padding: 28px 56px;  /* room for arrows */
+  border-radius: 4px;
   overflow: hidden;
-  width: 100%;
 }
 
-/* Ensure each slide fills the width and centers its content */
-div[role="region"][aria-roledescription="carousel"] > * {
-  width: 100%;
-  box-sizing: border-box;
+/* Viewport holds the horizontal scroll */
+.logos-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;          /* nice snapping */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;                   /* hide FF scrollbar */
+}
+.logos-viewport::-webkit-scrollbar {       /* hide WebKit scrollbar */
+  display: none;
 }
 
-/* If slides contain images, keep them responsive */
-div[role="region"][aria-roledescription="carousel"] img {
+/* Horizontal track */
+.logos-track {
+  display: flex;
+  align-items: center;
+  gap: 56px;                               /* space between logos */
+  min-width: 100%;
+}
+
+/* Each slide */
+.logo-slide {
+  flex: 0 0 auto;                          /* do not wrap; keep in a row */
+  scroll-snap-align: center;
+  display: grid;
+  place-items: center;
+}
+
+/* If slides contain images, keep them responsive & large like your example */
+.logo-slide img {
   display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 0 auto;
+  height: 96px;      /* tweak to your size */
+  width: auto;
+  filter: contrast(0.1) brightness(0.2);   /* mimic dark icon look (optional) */
 }
 
-/* Optional: simple fade when slides are swapped */
-@media (prefers-reduced-motion: no-preference) {
-  div[role="region"][aria-roledescription="carousel"] > * {
-    transition: opacity .25s ease;
-    opacity: 1;
-  }
-  /* When JS hides a slide, it uses [hidden]; no transition needed */
-}
-
-/* --- Arrows --- */
-.carousel-prev,
-.carousel-next {
+/* Arrows */
+.logos-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 5;
   width: 40px;
   height: 40px;
-  border: none;
+  border: 0;
   border-radius: 50%;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, 0.35);
   color: #fff;
   cursor: pointer;
   display: grid;
   place-items: center;
-  font: inherit;
+  font-size: 22px;
   line-height: 1;
+  z-index: 2;
 }
+.logos-prev { left: 12px; }
+.logos-next { right: 12px; }
 
-/* Left / Right placement */
-.carousel-prev { left: 12px; }
-.carousel-next { right: 12px; }
-
-/* Hover / focus states for accessibility */
-.carousel-prev:hover,
-.carousel-next:hover,
-.carousel-prev:focus-visible,
-.carousel-next:focus-visible {
-  background: rgba(0,0,0,.75);
+.logos-arrow:hover,
+.logos-arrow:focus-visible {
+  background: rgba(0, 0, 0, 0.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-/* Optional: give the block a relative context if needed */
+/* Keep original classes in case you style first two differently */
 .nav-head,
 .nav-head-2 {
-  /* Not strictly required, but helpful if your slides need spacing */
-  /* padding: 16px; */
+  /* Example: make the first two slightly larger (optional)
+  transform: scale(1.05);
+  */
 }
