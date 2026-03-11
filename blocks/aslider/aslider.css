@@ -1,75 +1,64 @@
-/* === Look & layout === */
-.lc-shell {
-  /* EDIT ONLY THESE to get your exact look */
-  --rows: 1;                          /* 1 = original single row; set 2 for two rows */
-  --perView: 5;                       /* logos per row on wide screens */
-  --gapX: clamp(56px, 9vw, 120px);    /* horizontal spacing between logos */
-  --gapY: 32px;                       /* vertical spacing when rows = 2 */
-  --bg: #9faa4d;                      /* your green strip */
+/* === Shell (green strip like your original) === */
+.lc-carousel {
+  --gap: clamp(24px, 6vw, 84px);
+  --perView: 5;                 /* how many logos visible on wide screens */
 
   position: relative;
-  background: var(--bg);
+  background: #9faa4d;
   padding: 28px clamp(24px, 5vw, 72px);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
-/* Responsive columns per row */
-@media (max-width: 1200px) { .lc-shell { --perView: 4; } }
-@media (max-width: 900px)  { .lc-shell { --perView: 3; } }
-@media (max-width: 640px)  { .lc-shell { --perView: 2; } }
+/* Responsive per-view */
+@media (max-width: 1200px) { .lc-carousel { --perView: 4; } }
+@media (max-width: 900px)  { .lc-carousel { --perView: 3; } }
+@media (max-width: 640px)  { .lc-carousel { --perView: 2; } }
 
 .lc-viewport { overflow: hidden; }
 
-/* Track holds full-width pages side-by-side */
+/* Row of items */
 .lc-track {
   display: flex;
-  width: 100%;
-  transform: translateX(0%); /* JS updates this by -100% per page */
+  align-items: center;
+  flex-wrap: nowrap;            /* single horizontal line */
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(0);
 }
 
-/* Smooth sliding animation activates after JS adds this class */
+/* Smooth slide when JS adds .lc-animated */
 .lc-track.lc-animated {
   transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Each page takes full viewport width */
-.lc-page {
-  flex: 0 0 100%;
-  display: grid;
-  grid-template-columns: repeat(var(--perView), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--rows), auto);
-  column-gap: var(--gapX);
-  row-gap: var(--gapY);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Cells center their content */
-.lc-cell {
+/* Evenly sized slots so spacing matches the original */
+.lc-item {
+  flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
   display: grid;
   place-items: center;
 }
 
-/* Images scale consistently (tune height to taste) */
-.lc-cell img {
+/* If the content is an <img>, size it like your reference */
+.lc-item img {
   display: block;
   height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* === Arrows (always clickable) === */
+/* === Arrows === */
 .lc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 20; /* stay on top */
-  width: 44px;
-  height: 44px;
+  z-index: 10;                  /* always clickable */
+  width: 40px;
+  height: 40px;
   border: 0;
   border-radius: 50%;
-  background: rgba(0,0,0,.35);
+  background: rgba(0,0,0,0.35);
   color: #fff;
   font-size: 22px;
   display: grid;
@@ -81,9 +70,12 @@
 
 .lc-arrow:hover,
 .lc-arrow:focus-visible {
-  background: rgba(0,0,0,.55);
+  background: rgba(0,0,0,0.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-.lc-arrow:disabled { opacity: .5; cursor: default; }
+.lc-arrow:disabled {
+  opacity: .5;
+  cursor: default;
+}
