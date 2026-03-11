@@ -1,71 +1,72 @@
-/* ===== Shell (green strip) ===== */
-.lc2-carousel {
-  /* Tune these to fit your design */
-  --rows: 2;                       /* rows visible at once */
-  --perView: 5;                    /* columns per page on wide screens */
-  --gapX: clamp(24px, 6vw, 84px);  /* horizontal gap between columns */
-  --gapY: 32px;                    /* vertical gap between rows */
+/* === Look & layout === */
+.lc-shell {
+  /* EDIT ONLY THESE to get your exact look */
+  --rows: 1;                          /* 1 = original single row; set 2 for two rows */
+  --perView: 5;                       /* logos per row on wide screens */
+  --gapX: clamp(56px, 9vw, 120px);    /* horizontal spacing between logos */
+  --gapY: 32px;                       /* vertical spacing when rows = 2 */
+  --bg: #9faa4d;                      /* your green strip */
 
   position: relative;
-  background: #9faa4d;             /* your green */
+  background: var(--bg);
   padding: 28px clamp(24px, 5vw, 72px);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
-/* Responsive columns per page */
-@media (max-width: 1200px) { .lc2-carousel { --perView: 4; } }
-@media (max-width: 900px)  { .lc2-carousel { --perView: 3; } }
-@media (max-width: 640px)  { .lc2-carousel { --perView: 2; } }
+/* Responsive columns per row */
+@media (max-width: 1200px) { .lc-shell { --perView: 4; } }
+@media (max-width: 900px)  { .lc-shell { --perView: 3; } }
+@media (max-width: 640px)  { .lc-shell { --perView: 2; } }
 
-.lc2-viewport {
-  overflow: hidden;
+.lc-viewport { overflow: hidden; }
+
+/* Track holds full-width pages side-by-side */
+.lc-track {
+  display: flex;
+  width: 100%;
+  transform: translateX(0%); /* JS updates this by -100% per page */
 }
 
-/* ===== Grid that flows by columns (fills down first, then next column) ===== */
-.lc2-grid {
-  display: grid;
-  grid-auto-flow: column;  /* place items top-to-bottom, then next column */
-  grid-template-rows: repeat(var(--rows), auto);
-  grid-auto-columns: calc((100% - (var(--gapX) * (var(--perView) - 1))) / var(--perView));
-  column-gap: var(--gapX);
-  row-gap: var(--gapY);
-
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  /* Make the grid as wide as it needs to be so we can translate it */
-  width: max-content;
-  transform: translateX(0);
-}
-
-/* Smooth slide once JS adds the class */
-.lc2-grid.lc2-animated {
+/* Smooth sliding animation activates after JS adds this class */
+.lc-track.lc-animated {
   transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Each cell centers its content */
-.lc2-cell {
+/* Each page takes full viewport width */
+.lc-page {
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--perView), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), auto);
+  column-gap: var(--gapX);
+  row-gap: var(--gapY);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cells center their content */
+.lc-cell {
   display: grid;
   place-items: center;
 }
 
-/* Images scale consistently */
-.lc2-cell img {
+/* Images scale consistently (tune height to taste) */
+.lc-cell img {
   display: block;
   height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* ===== Arrows ===== */
-.lc2-arrow {
+/* === Arrows (always clickable) === */
+.lc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;                 /* be above everything */
-  width: 40px;
-  height: 40px;
+  z-index: 20; /* stay on top */
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 50%;
   background: rgba(0,0,0,.35);
@@ -75,14 +76,14 @@
   place-items: center;
   cursor: pointer;
 }
-.lc2-prev { left: 12px; }
-.lc2-next { right: 12px; }
+.lc-prev { left: 12px; }
+.lc-next { right: 12px; }
 
-.lc2-arrow:hover,
-.lc2-arrow:focus-visible {
+.lc-arrow:hover,
+.lc-arrow:focus-visible {
   background: rgba(0,0,0,.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-.lc2-arrow:disabled { opacity: .5; cursor: default; }
+.lc-arrow:disabled { opacity: .5; cursor: default; }
