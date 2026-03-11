@@ -32,7 +32,7 @@
   height:42px;
   border-radius:50%;
   border:none;
-  background:#9faa4d;
+  background:#cfa72a;
   color:#fff;
   font-size:24px;
   cursor:pointer;
@@ -50,6 +50,6 @@
 }
  
 .nav-arrow:hover{
-  background:#cfa72a;
+  background:#9faa4d;
 }
  
