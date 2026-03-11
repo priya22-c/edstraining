@@ -1,81 +1,46 @@
-/* === Shell (green strip like your original) === */
-.lc-carousel {
-  --gap: clamp(24px, 6vw, 84px);
-  --perView: 5;                 /* how many logos visible on wide screens */
-
-  position: relative;
-  background: #9faa4d;
-  padding: 28px clamp(24px, 5vw, 72px);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* Responsive per-view */
-@media (max-width: 1200px) { .lc-carousel { --perView: 4; } }
-@media (max-width: 900px)  { .lc-carousel { --perView: 3; } }
-@media (max-width: 640px)  { .lc-carousel { --perView: 2; } }
-
-.lc-viewport { overflow: hidden; }
-
-/* Row of items */
-.lc-track {
+/* yellow background */
+.nav-head {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;            /* single horizontal line */
-  gap: var(--gap);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  transform: translateX(0);
+  gap: 80px;
+  overflow: hidden;
+  padding: 30px 60px;
+  background: #9a8d2f;
 }
-
-/* Smooth slide when JS adds .lc-animated */
-.lc-track.lc-animated {
-  transition: transform .45s cubic-bezier(.22,.61,.36,1);
+ 
+/* icons */
+.nav-head img {
+  width: 70px;
+  height: auto;
+  opacity: 0.9;
 }
-
-/* Evenly sized slots so spacing matches the original */
-.lc-item {
-  flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
-  display: grid;
-  place-items: center;
-}
-
-/* If the content is an <img>, size it like your reference */
-.lc-item img {
-  display: block;
-  height: clamp(64px, 10vh, 110px);
-  width: auto;
-}
-
-/* === Arrows === */
-.lc-arrow {
+ 
+/* arrows */
+.nav-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;                  /* always clickable */
+  background: white;
+  border: none;
   width: 40px;
   height: 40px;
-  border: 0;
   border-radius: 50%;
-  background: rgba(0,0,0,0.35);
-  color: #fff;
-  font-size: 22px;
-  display: grid;
-  place-items: center;
   cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
-.lc-prev { left: 12px; }
-.lc-next { right: 12px; }
-
-.lc-arrow:hover,
-.lc-arrow:focus-visible {
-  background: rgba(0,0,0,0.55);
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+ 
+/* left arrow */
+.nav-arrow.prev {
+  left: 10px;
 }
-
-.lc-arrow:disabled {
-  opacity: .5;
-  cursor: default;
+ 
+/* right arrow */
+.nav-arrow.next {
+  right: 10px;
+}
+ 
+/* hover */
+.nav-arrow:hover {
+  background: #f4f4f4;
 }
