@@ -1,1 +1,75 @@
+/* --- Generic hide rule used by the JS --- */
+[hidden] {
+  display: none !important;
+}
 
+/* --- Carousel viewport (the JS creates this element) --- */
+div[role="region"][aria-roledescription="carousel"] {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Ensure each slide fills the width and centers its content */
+div[role="region"][aria-roledescription="carousel"] > * {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* If slides contain images, keep them responsive */
+div[role="region"][aria-roledescription="carousel"] img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Optional: simple fade when slides are swapped */
+@media (prefers-reduced-motion: no-preference) {
+  div[role="region"][aria-roledescription="carousel"] > * {
+    transition: opacity .25s ease;
+    opacity: 1;
+  }
+  /* When JS hides a slide, it uses [hidden]; no transition needed */
+}
+
+/* --- Arrows --- */
+.carousel-prev,
+.carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font: inherit;
+  line-height: 1;
+}
+
+/* Left / Right placement */
+.carousel-prev { left: 12px; }
+.carousel-next { right: 12px; }
+
+/* Hover / focus states for accessibility */
+.carousel-prev:hover,
+.carousel-next:hover,
+.carousel-prev:focus-visible,
+.carousel-next:focus-visible {
+  background: rgba(0,0,0,.75);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Optional: give the block a relative context if needed */
+.nav-head,
+.nav-head-2 {
+  /* Not strictly required, but helpful if your slides need spacing */
+  /* padding: 16px; */
+}
