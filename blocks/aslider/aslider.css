@@ -1,77 +1,36 @@
-/* Hide native scrollbars but keep keyboard/assistive scroll working */
-.logos-viewport::-webkit-scrollbar { display: none; }
-.logos-viewport { scrollbar-width: none; }
-
-/* Green strip background + padding for arrows */
-.logos-carousel {
-  position: relative;
-  background: #9faa4d;          /* match your green */
-  padding: 28px 56px;            /* room for arrows on both sides */
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-/* Horizontal viewport */
-.logos-viewport {
-  overflow-x: auto;              /* native smooth scroll target */
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-/* Track lays items in one line only (no wrapping) */
-.logos-track {
+/* Green strip container */
+.logos-row {
   display: flex;
-  flex-wrap: nowrap;             /* <- keep single row */
+  flex-wrap: nowrap;                 /* single line */
+  justify-content: space-between;    /* even spacing like your second image */
   align-items: center;
-  gap: 72px;                     /* spacing between logos (tune) */
-  padding: 8px 0;
+  gap: clamp(24px, 6vw, 96px);       /* responsive space between logos */
+  background: #9faa4d;               /* your green */
+  padding: 28px clamp(24px, 5vw, 72px);
+  border-radius: 6px;
+  overflow: hidden;                   /* tidy edges */
 }
 
-/* Every direct child becomes a slide (unbreakable) */
-.logo-slide {
-  flex: 0 0 auto;                /* do not wrap */
+/* Each logo “slot” */
+.logo-item {
+  flex: 0 0 auto;                     /* keep in one row */
   display: grid;
   place-items: center;
-  min-width: 180px;              /* set a consistent slot width (tune) */
 }
 
-/* If slides contain <img>, scale consistently */
-.logo-slide img {
+/* Make the logos look consistent and large */
+.logo-item img {
   display: block;
-  height: 96px;                  /* size like your reference (tune) */
+  height: clamp(64px, 10vh, 110px);   /* tune this to match your reference */
   width: auto;
 }
 
-/* Arrows */
-.logos-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0,0,0,.35);
-  color: #fff;
-  font-size: 22px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
+/* Mobile: allow horizontal scroll if space is tight (still in one row) */
+@media (max-width: 768px) {
+  .logos-row {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .logo-item { scroll-snap-align: center; }
 }
-.logos-prev { left: 12px; }
-.logos-next { right: 12px; }
-
-.logos-arrow:hover,
-.logos-arrow:focus-visible {
-  background: rgba(0,0,0,.55);
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
-
-/* Optional: make the first two (nav-head / nav-head-2) slightly emphasized */
-/*
-.nav-head img, .nav-head-2 img { transform: scale(1.05); }
-*/
