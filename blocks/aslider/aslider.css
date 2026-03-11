@@ -1,62 +1,59 @@
 /* ====== Shell (green strip) ====== */
 .logos-carousel {
-  /* Tweak these two to match your design */
   --gap: clamp(24px, 6vw, 84px);
-  --perView: 5;  /* items visible on large screens */
+  --perView: 5;  /* visible items on wide screens */
 
   position: relative;
-  background: #9faa4d;                               /* your green */
+  background: #9faa4d;                    /* your green */
   padding: 28px clamp(24px, 5vw, 72px);
   border-radius: 6px;
   overflow: hidden;
 }
 
-/* Responsive per-view counts */
+/* Responsive counts */
 @media (max-width: 1200px) { .logos-carousel { --perView: 4; } }
 @media (max-width: 900px)  { .logos-carousel { --perView: 3; } }
 @media (max-width: 640px)  { .logos-carousel { --perView: 2; } }
 
-.logos-viewport {
-  overflow: hidden;       /* hide overflow; we animate the track inside */
-}
+.logos-viewport { overflow: hidden; }
 
-/* Row of items */
+/* Horizontal row */
 .logos-track {
   display: flex;
-  flex-wrap: nowrap;      /* single line */
   align-items: center;
+  flex-wrap: nowrap;             /* single row only */
   gap: var(--gap);
   margin: 0;
   padding: 0;
   list-style: none;
-  transform: translateX(0);         /* will be updated by JS */
+  transform: translateX(0);      /* JS updates */
 }
 
-/* Apply animation when JS adds .animated */
+/* Enable the sliding animation only after JS adds .animated */
 .logos-track.animated {
-  transition: transform .45s cubic-bezier(.22,.61,.36,1);  /* smooth slide */
+  transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Each slot’s width = 1/perView of viewport (minus gaps) */
+/* Equal-width slots so spacing matches your reference */
 .logo-item {
   flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
   display: grid;
   place-items: center;
 }
 
-/* Logo sizing (adjust height to match your reference) */
+/* Logo sizing */
 .logo-item img {
   display: block;
   height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* ====== Arrows ====== */
+/* ====== Arrows (always clickable and on top) ====== */
 .logos-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 3;
+  z-index: 10;                    /* keep above everything */
   width: 40px;
   height: 40px;
   border: 0;
@@ -73,6 +70,10 @@
 .logos-arrow.next { right: 12px; }
 
 .logos-arrow:hover,
-.logos-arrow:focus-visible { background: rgba(0,0,0,.55); outline: 2px solid #fff; outline-offset: 2px; }
+.logos-arrow:focus-visible {
+  background: rgba(0,0,0,.55);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 
 .logos-arrow:disabled { opacity: .5; cursor: default; }
