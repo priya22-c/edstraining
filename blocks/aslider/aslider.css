@@ -1,46 +1,46 @@
-/* Container */
+/* Hide native scrollbars but keep keyboard/assistive scroll working */
+.logos-viewport::-webkit-scrollbar { display: none; }
+.logos-viewport { scrollbar-width: none; }
+
+/* Green strip background + padding for arrows */
 .logos-carousel {
   position: relative;
-  background: #9faa4d; /* the green bar from your reference */
-  padding: 28px 56px;  /* room for arrows */
+  background: #9faa4d;          /* match your green */
+  padding: 28px 56px;            /* room for arrows on both sides */
   border-radius: 4px;
   overflow: hidden;
 }
 
-/* Viewport holds the horizontal scroll */
+/* Horizontal viewport */
 .logos-viewport {
-  overflow-x: auto;
+  overflow-x: auto;              /* native smooth scroll target */
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;          /* nice snapping */
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;                   /* hide FF scrollbar */
-}
-.logos-viewport::-webkit-scrollbar {       /* hide WebKit scrollbar */
-  display: none;
+  scroll-behavior: smooth;
 }
 
-/* Horizontal track */
+/* Track lays items in one line only (no wrapping) */
 .logos-track {
   display: flex;
+  flex-wrap: nowrap;             /* <- keep single row */
   align-items: center;
-  gap: 56px;                               /* space between logos */
-  min-width: 100%;
+  gap: 72px;                     /* spacing between logos (tune) */
+  padding: 8px 0;
 }
 
-/* Each slide */
+/* Every direct child becomes a slide (unbreakable) */
 .logo-slide {
-  flex: 0 0 auto;                          /* do not wrap; keep in a row */
-  scroll-snap-align: center;
+  flex: 0 0 auto;                /* do not wrap */
   display: grid;
   place-items: center;
+  min-width: 180px;              /* set a consistent slot width (tune) */
 }
 
-/* If slides contain images, keep them responsive & large like your example */
+/* If slides contain <img>, scale consistently */
 .logo-slide img {
   display: block;
-  height: 96px;      /* tweak to your size */
+  height: 96px;                  /* size like your reference (tune) */
   width: auto;
-  filter: contrast(0.1) brightness(0.2);   /* mimic dark icon look (optional) */
 }
 
 /* Arrows */
@@ -48,33 +48,30 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 3;
   width: 40px;
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0,0,0,.35);
   color: #fff;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
   font-size: 22px;
   line-height: 1;
-  z-index: 2;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
 }
 .logos-prev { left: 12px; }
 .logos-next { right: 12px; }
 
 .logos-arrow:hover,
 .logos-arrow:focus-visible {
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-/* Keep original classes in case you style first two differently */
-.nav-head,
-.nav-head-2 {
-  /* Example: make the first two slightly larger (optional)
-  transform: scale(1.05);
-  */
-}
+/* Optional: make the first two (nav-head / nav-head-2) slightly emphasized */
+/*
+.nav-head img, .nav-head-2 img { transform: scale(1.05); }
+*/
