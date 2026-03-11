@@ -1,36 +1,82 @@
-/* Green strip container */
-.logos-row {
-  display: flex;
-  flex-wrap: nowrap;                 /* single line */
-  justify-content: space-between;    /* even spacing like your second image */
-  align-items: center;
-  gap: clamp(24px, 6vw, 96px);       /* responsive space between logos */
-  background: #9faa4d;               /* your green */
-  padding: 28px clamp(24px, 5vw, 72px);
+/* ---- Carousel shell (green strip) ---- */
+.logos-carousel {
+  /* tune these two to match your design */
+  --gap: clamp(24px, 6vw, 84px);
+  --perView: 5; /* logos visible on large screens */
+
+  position: relative;
+  background: #9faa4d;                                /* your green */
+  padding: 28px clamp(24px, 5vw, 72px);               /* inner space, room for arrows */
   border-radius: 6px;
-  overflow: hidden;                   /* tidy edges */
+  overflow: hidden;
 }
 
-/* Each logo “slot” */
+/* Responsive visible count */
+@media (max-width: 1200px) { .logos-carousel { --perView: 4; } }
+@media (max-width: 900px)  { .logos-carousel { --perView: 3; } }
+@media (max-width: 640px)  { .logos-carousel { --perView: 2; } }
+
+.logos-viewport {
+  overflow: hidden;            /* hide overflow; JS controls scrollLeft */
+  scroll-behavior: smooth;
+}
+
+.logos-viewport::-webkit-scrollbar { display: none; }
+.logos-viewport { scrollbar-width: none; }
+
+.logos-track {
+  display: flex;
+  flex-wrap: nowrap;           /* single row only */
+  align-items: center;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each logo occupies an equal slot so spacing is like your second image */
 .logo-item {
-  flex: 0 0 auto;                     /* keep in one row */
+  flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
   display: grid;
   place-items: center;
 }
 
-/* Make the logos look consistent and large */
+/* Logo sizing (tune the height to match your reference) */
 .logo-item img {
   display: block;
-  height: clamp(64px, 10vh, 110px);   /* tune this to match your reference */
+  height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* Mobile: allow horizontal scroll if space is tight (still in one row) */
-@media (max-width: 768px) {
-  .logos-row {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-  }
-  .logo-item { scroll-snap-align: center; }
+/* ---- Arrows ---- */
+.logos-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.logos-arrow.prev { left: 12px; }
+.logos-arrow.next { right: 12px; }
+
+.logos-arrow:hover,
+.logos-arrow:focus-visible {
+  background: rgba(0, 0, 0, 0.55);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.logos-arrow:disabled {
+  opacity: .5;
+  cursor: default;
 }
