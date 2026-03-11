@@ -1,28 +1,28 @@
 export default function decorate(block) {
  
-  const first = block.children[0];
-  if (!first) return;
+  const container = block.children[0];
+  if (!container) return;
  
-  /* main container */
-  first.classList.add("nav-head");
+  /* main class */
+  container.classList.add("nav-head");
  
   /* create track */
   const track = document.createElement("div");
   track.className = "nav-head-2";
  
-  const items = [...first.children];
+  const items = [...container.children];
  
   items.forEach((item) => {
     track.appendChild(item);
   });
  
-  /* duplicate items for infinite loop */
+  /* clone items for infinite loop */
   items.forEach((item) => {
     const clone = item.cloneNode(true);
     track.appendChild(clone);
   });
  
-  first.appendChild(track);
+  container.appendChild(track);
  
   /* arrows */
   const prev = document.createElement("button");
@@ -33,29 +33,35 @@ export default function decorate(block) {
   next.className = "nav-arrow next";
   next.innerHTML = "›";
  
-  block.append(prev, next);
+  container.append(prev, next);
  
-  let position = 0;
+  let scrollPosition = 0;
+  const step = 200;
  
-  next.addEventListener("click", () => {
-    position += 200;
-    track.style.transform = `translateX(-${position}px)`;
-  });
+  function moveNext() {
+    scrollPosition += step;
  
-  prev.addEventListener("click", () => {
-    position -= 200;
-    if (position < 0) position = 0;
-    track.style.transform = `translateX(-${position}px)`;
-  });
- 
-  /* auto loop */
-  setInterval(() => {
-    position += 200;
-    if (position > track.scrollWidth / 2) {
-      position = 0;
+    if (scrollPosition >= track.scrollWidth / 2) {
+      scrollPosition = 0;
     }
-    track.style.transform = `translateX(-${position}px)`;
-  }, 2500);
+ 
+    track.style.transform = `translateX(-${scrollPosition}px)`;
+  }
+ 
+  function movePrev() {
+    scrollPosition -= step;
+ 
+    if (scrollPosition < 0) {
+      scrollPosition = track.scrollWidth / 2;
+    }
+ 
+    track.style.transform = `translateX(-${scrollPosition}px)`;
+  }
+ 
+  next.addEventListener("click", moveNext);
+  prev.addEventListener("click", movePrev);
+ 
+  /* auto slide */
+  setInterval(moveNext, 2500);
  
 }
- 
