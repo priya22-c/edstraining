@@ -1,23 +1,30 @@
 export default function decorate(block) {
  
-  const row = block.children[0];
-  if (!row) return;
+  const first = block.children[0];
+  if (!first) return;
  
-  row.classList.add("nav-head");
+  /* main container */
+  first.classList.add("nav-head");
  
-  const items = [...row.children];
- 
-  /* wrapper */
+  /* create track */
   const track = document.createElement("div");
-  track.className = "nav-track";
+  track.className = "nav-head-2";
  
-  items.forEach((el) => {
-    track.appendChild(el);
+  const items = [...first.children];
+ 
+  items.forEach((item) => {
+    track.appendChild(item);
   });
  
-  row.appendChild(track);
+  /* duplicate items for infinite loop */
+  items.forEach((item) => {
+    const clone = item.cloneNode(true);
+    track.appendChild(clone);
+  });
  
-  /* create arrows */
+  first.appendChild(track);
+ 
+  /* arrows */
   const prev = document.createElement("button");
   prev.className = "nav-arrow prev";
   prev.innerHTML = "‹";
@@ -28,26 +35,27 @@ export default function decorate(block) {
  
   block.append(prev, next);
  
-  let scrollAmount = 0;
+  let position = 0;
  
   next.addEventListener("click", () => {
-    scrollAmount += 200;
-    track.style.transform = `translateX(-${scrollAmount}px)`;
+    position += 200;
+    track.style.transform = `translateX(-${position}px)`;
   });
  
   prev.addEventListener("click", () => {
-    scrollAmount -= 200;
-    if (scrollAmount < 0) scrollAmount = 0;
-    track.style.transform = `translateX(-${scrollAmount}px)`;
+    position -= 200;
+    if (position < 0) position = 0;
+    track.style.transform = `translateX(-${position}px)`;
   });
  
-  /* auto carousel */
+  /* auto loop */
   setInterval(() => {
-    scrollAmount += 200;
-    if (scrollAmount > track.scrollWidth / 2) {
-      scrollAmount = 0;
+    position += 200;
+    if (position > track.scrollWidth / 2) {
+      position = 0;
     }
-    track.style.transform = `translateX(-${scrollAmount}px)`;
-  }, 3000);
+    track.style.transform = `translateX(-${position}px)`;
+  }, 2500);
  
 }
+ 
