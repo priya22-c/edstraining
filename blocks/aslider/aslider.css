@@ -2,7 +2,7 @@
   background: linear-gradient(90deg,#9c8c2c,#b7a64a);
   padding: 35px 80px;
   overflow: hidden;
-  position: relative;
+  
 }
  
 /* track */
@@ -65,6 +65,7 @@
   align-items:center;
   gap:80px;
   transition: transform 0.6s ease;
+    position: relative;
 }
  
 /* icons */
