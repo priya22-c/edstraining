@@ -1,32 +1,55 @@
-// logos-animated-carousel-stable.js
+// logos-carousel.js
 export default function decorate(block) {
-  // 1) Collect all <img> (flatten the block)
-  const imgs = Array.from(block.querySelectorAll('img'));
-  if (!imgs.length) return;
+  // --- Keep your original class additions ---
+  const first = block.children[0];
+  if (!first) return;
+  first.classList.add('nav-head');
 
-  // 2) Deduplicate by src
+  const second = block.children[1];
+  if (second) second.classList.add('nav-head-2');
+
+  // --- Collect ALL <img> inside the block (flatten), else fallback to children ---
+  let itemsSrc = Array.from(block.querySelectorAll('img'));
+  if (!itemsSrc.length) {
+    // if no <img>, treat each direct child as an item
+    itemsSrc = Array.from(block.children);
+  }
+
+  // Deduplicate by src if they appear twice
   const seen = new Set();
-  const uniqueImgs = imgs.filter((img) => {
-    const src = img.currentSrc || img.src;
-    if (seen.has(src)) return false;
-    seen.add(src);
+  const itemsEls = itemsSrc.filter((n) => {
+    if (n.tagName === 'IMG') {
+      const src = n.currentSrc || n.src;
+      if (seen.has(src)) return false;
+      seen.add(src);
+    }
     return true;
   });
 
-  // 3) Build structure: carousel -> prev + viewport(track(items)) + next
+  if (!itemsEls.length) return;
+
+  // --- Build structure: carousel -> prev + viewport(track(items)) + next ---
   const carousel = document.createElement('div');
-  carousel.className = 'logos-carousel';
+  carousel.className = 'lc-carousel';
+  carousel.tabIndex = 0; // keyboard arrows
 
   const viewport = document.createElement('div');
-  viewport.className = 'logos-viewport';
+  viewport.className = 'lc-viewport';
 
   const track = document.createElement('ul');
-  track.className = 'logos-track';
+  track.className = 'lc-track';
 
-  uniqueImgs.forEach((img) => {
+  itemsEls.forEach((el) => {
     const li = document.createElement('li');
-    li.className = 'logo-item';
-    li.appendChild(img); // MOVE existing img
+    li.className = 'lc-item';
+
+    // Move existing content into the slot (no cloning to avoid duplicates)
+    if (el.tagName === 'IMG') {
+      li.appendChild(el);
+    } else {
+      li.appendChild(el);
+    }
+
     track.appendChild(li);
   });
 
@@ -34,88 +57,80 @@ export default function decorate(block) {
 
   const prev = document.createElement('button');
   prev.type = 'button';
-  prev.className = 'logos-arrow prev';
+  prev.className = 'lc-arrow lc-prev';
   prev.setAttribute('aria-label', 'Previous');
   prev.innerHTML = '‹';
 
   const next = document.createElement('button');
   next.type = 'button';
-  next.className = 'logos-arrow next';
+  next.className = 'lc-arrow lc-next';
   next.setAttribute('aria-label', 'Next');
   next.innerHTML = '›';
 
-  // Replace old content
+  // Replace original block content with our carousel
   block.replaceChildren(carousel);
   carousel.append(prev, viewport, next);
 
-  // ---------- Sliding logic (translateX with transition) ----------
+  // -------- Carousel logic (page-by-page sliding) --------
   const items = Array.from(track.children);
   const total = items.length;
 
-  // Read how many items per view from CSS custom property (fallback 5)
-  const getPerView = () => {
+  // Read --perView from CSS (how many visible per page)
+  const perView = () => {
     const raw = getComputedStyle(carousel).getPropertyValue('--perView').trim();
     const n = Number(raw || 5);
     return Number.isFinite(n) && n > 0 ? n : 5;
   };
 
-  let index = 0;      // left-most visible item (0-based)
-  let step = 0;       // px to move per ONE item (item width + gap)
-  let maxIndex = 0;   // last valid left-most index
+  let index = 0;      // left-most visible item index
+  let stepPx = 0;     // pixels to move for ONE item (width + gap)
+  let maxIndex = 0;   // last valid left-most index (for page step we jump perView)
 
-  function computeSizes() {
-    // Wait for layout — if width is 0, try again on next frame
-    const firstItem = items[0];
-    const rect = firstItem.getBoundingClientRect();
+  function compute() {
+    // Measure one slot after layout
+    const firstSlot = items[0];
+    const rect = firstSlot.getBoundingClientRect();
     if (rect.width === 0) {
-      requestAnimationFrame(computeSizes);
+      requestAnimationFrame(compute);
       return;
     }
-
     const cs = getComputedStyle(track);
     const gap = parseFloat(cs.gap || cs.columnGap || '0') || 0;
+    stepPx = rect.width + gap;
 
-    step = rect.width + gap;
+    const pv = perView();
+    maxIndex = Math.max(0, Math.ceil(total / pv) - 1); // page count - 1
 
-    const perView = getPerView();
-    maxIndex = Math.max(0, total - perView);
-
-    // Clamp index after recompute
+    // Keep current page in bounds
     index = Math.max(0, Math.min(index, maxIndex));
-
-    applyTransform();
+    apply();
   }
 
-  function applyTransform() {
-    track.style.transform = `translateX(${-index * step}px)`;
-    // Disable only if there is nowhere to go
-    prev.disabled = (index === 0);
-    next.disabled = (index === maxIndex);
+  function apply() {
+    // Translate by full "pages": pageIndex * pageWidth
+    const pv = perView();
+    const distance = (track.children[0].getBoundingClientRect().width + (parseFloat(getComputedStyle(track).gap) || 0)) * pv;
+    track.style.transform = `translateX(${-index * distance}px)`;
+
+    // Enable/disable arrows at edges
+    prev.disabled = index === 0;
+    next.disabled = index === maxIndex;
   }
 
-  // Click handlers
-  prev.addEventListener('click', () => {
-    // Move ONE item per click (change to perView for page-by-page)
-    index = Math.max(0, index - 1);
-    applyTransform();
-  });
+  // Click handlers: move one PAGE (the visible set)
+  prev.addEventListener('click', () => { index = Math.max(0, index - 1); apply(); });
+  next.addEventListener('click', () => { index = Math.min(maxIndex, index + 1); apply(); });
 
-  next.addEventListener('click', () => {
-    index = Math.min(maxIndex, index + 1);
-    applyTransform();
-  });
-
-  // Keyboard
+  // Keyboard support when the carousel has focus
   carousel.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); prev.click(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
   });
 
-  // Recompute on resize
-  window.addEventListener('resize', computeSizes, { passive: true });
+  // Recompute on resize (keeps page width aligned)
+  window.addEventListener('resize', compute, { passive: true });
 
-  // Initialize: first paint without animation, then enable animation
-  computeSizes();
-  requestAnimationFrame(() => track.classList.add('animated'));
+  // Init: compute first, then enable smooth transition
+  compute();
+  requestAnimationFrame(() => track.classList.add('lc-animated'));
 }
-``
