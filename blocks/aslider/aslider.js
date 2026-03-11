@@ -1,73 +1,70 @@
 export default function decorate(block) {
-  // --- Mark first two children as requested
+  // Mark first two (as you previously needed)
   const first = block.children[0];
   if (!first) return;
   first.classList.add('nav-head');
-
   const second = block.children[1];
   if (second) second.classList.add('nav-head-2');
 
-  // --- Collect slides (use all direct children of the block)
-  const slides = Array.from(block.children).filter((el) => el.nodeType === 1);
+  // 1) Build structure: wrapper -> viewport -> track -> slides
+  const wrapper = document.createElement('div');
+  wrapper.className = 'logos-carousel';
 
-  if (slides.length <= 1) return; // nothing to carousel
-
-  // --- Carousel state
-  let index = 0;
-
-  // --- Create a viewport wrapper to keep arrows & slides together
-  // (no CSS required; we’ll toggle hidden and aria attributes)
   const viewport = document.createElement('div');
-  viewport.setAttribute('role', 'region');
-  viewport.setAttribute('aria-roledescription', 'carousel');
-  viewport.setAttribute('aria-label', 'Navigation carousel');
-  viewport.style.position = 'relative';
+  viewport.className = 'logos-viewport';
 
-  // Move existing slides into viewport
-  slides.forEach((s) => viewport.appendChild(s));
-  block.appendChild(viewport);
+  const track = document.createElement('div');
+  track.className = 'logos-track';
 
-  // --- Create arrows
-  const prevBtn = document.createElement('button');
-  prevBtn.type = 'button';
-  prevBtn.className = 'carousel-prev';
-  prevBtn.setAttribute('aria-label', 'Previous');
-  prevBtn.textContent = '◀';
-
-  const nextBtn = document.createElement('button');
-  nextBtn.type = 'button';
-  nextBtn.className = 'carousel-next';
-  nextBtn.setAttribute('aria-label', 'Next');
-  nextBtn.textContent = '▶';
-
-  // Place arrows at the end so they’re in DOM and focusable
-  block.append(prevBtn, nextBtn);
-
-  // --- Helper to show a slide by index
-  function show(i) {
-    index = (i + slides.length) % slides.length;
-
-    slides.forEach((el, n) => {
-      const active = n === index;
-      el.hidden = !active; // hide others
-      el.setAttribute('aria-hidden', String(!active));
-      el.tabIndex = active ? 0 : -1;
-    });
-
-    // Update buttons’ disabled state if you want finite edges.
-    // Here we keep it infinite (wrap-around), so no disable.
-  }
-
-  // --- Wire up arrows
-  prevBtn.addEventListener('click', () => show(index - 1));
-  nextBtn.addEventListener('click', () => show(index + 1));
-
-  // --- Keyboard support (Left/Right when focus is on a slide or button)
-  block.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+  // Move all current children into the track as slides
+  const slides = Array.from(block.children);
+  slides.forEach((el) => {
+    const slide = document.createElement('div');
+    slide.className = 'logo-slide';
+    // move original child into slide
+    slide.appendChild(el);
+    track.appendChild(slide);
   });
 
-  // --- Initialize
-  show(0);
+  viewport.appendChild(track);
+  wrapper.appendChild(viewport);
+
+  // 2) Arrows
+  const prev = document.createElement('button');
+  prev.className = 'logos-arrow logos-prev';
+  prev.type = 'button';
+  prev.setAttribute('aria-label', 'Previous');
+  prev.innerHTML = '‹';
+
+  const next = document.createElement('button');
+  next.className = 'logos-arrow logos-next';
+  next.type = 'button';
+  next.setAttribute('aria-label', 'Next');
+  next.innerHTML = '›';
+
+  wrapper.appendChild(prev);
+  wrapper.appendChild(next);
+
+  // Put wrapper back into the block
+  block.innerHTML = '';
+  block.appendChild(wrapper);
+
+  // 3) Logic: scroll by one slide width on click
+  const getSlideWidth = () => {
+    const anySlide = track.querySelector('.logo-slide');
+    return anySlide ? anySlide.getBoundingClientRect().width : 0;
+  };
+
+  // Keep scroll snapping nice even if resized
+  let slideW = getSlideWidth();
+  window.addEventListener('resize', () => { slideW = getSlideWidth(); });
+
+  prev.addEventListener('click', () => {
+    viewport.scrollBy({ left: -slideW, behavior: 'smooth' });
+  });
+  next.addEventListener('click', () => {
+    viewport.scrollBy({ left: slideW, behavior: 'smooth' });
+  });
+
+  // Optional: drag/trackpad friendly (no extra code needed; native scroll)
 }
