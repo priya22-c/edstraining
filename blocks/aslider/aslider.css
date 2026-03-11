@@ -1,81 +1,88 @@
-/* === Shell (green strip like your original) === */
-.lc-carousel {
-  --gap: clamp(24px, 6vw, 84px);
-  --perView: 5;                 /* how many logos visible on wide screens */
+/* ===== Shell (green strip) ===== */
+.lc2-carousel {
+  /* Tune these to fit your design */
+  --rows: 2;                       /* rows visible at once */
+  --perView: 5;                    /* columns per page on wide screens */
+  --gapX: clamp(24px, 6vw, 84px);  /* horizontal gap between columns */
+  --gapY: 32px;                    /* vertical gap between rows */
 
   position: relative;
-  background: #9faa4d;
+  background: #9faa4d;             /* your green */
   padding: 28px clamp(24px, 5vw, 72px);
   border-radius: 6px;
   overflow: hidden;
 }
 
-/* Responsive per-view */
-@media (max-width: 1200px) { .lc-carousel { --perView: 4; } }
-@media (max-width: 900px)  { .lc-carousel { --perView: 3; } }
-@media (max-width: 640px)  { .lc-carousel { --perView: 2; } }
+/* Responsive columns per page */
+@media (max-width: 1200px) { .lc2-carousel { --perView: 4; } }
+@media (max-width: 900px)  { .lc2-carousel { --perView: 3; } }
+@media (max-width: 640px)  { .lc2-carousel { --perView: 2; } }
 
-.lc-viewport { overflow: hidden; }
+.lc2-viewport {
+  overflow: hidden;
+}
 
-/* Row of items */
-.lc-track {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;            /* single horizontal line */
-  gap: var(--gap);
+/* ===== Grid that flows by columns (fills down first, then next column) ===== */
+.lc2-grid {
+  display: grid;
+  grid-auto-flow: column;  /* place items top-to-bottom, then next column */
+  grid-template-rows: repeat(var(--rows), auto);
+  grid-auto-columns: calc((100% - (var(--gapX) * (var(--perView) - 1))) / var(--perView));
+  column-gap: var(--gapX);
+  row-gap: var(--gapY);
+
   margin: 0;
   padding: 0;
   list-style: none;
+
+  /* Make the grid as wide as it needs to be so we can translate it */
+  width: max-content;
   transform: translateX(0);
 }
 
-/* Smooth slide when JS adds .lc-animated */
-.lc-track.lc-animated {
+/* Smooth slide once JS adds the class */
+.lc2-grid.lc2-animated {
   transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Evenly sized slots so spacing matches the original */
-.lc-item {
-  flex: 0 0 calc((100% - (var(--gap) * (var(--perView) - 1))) / var(--perView));
+/* Each cell centers its content */
+.lc2-cell {
   display: grid;
   place-items: center;
 }
 
-/* If the content is an <img>, size it like your reference */
-.lc-item img {
+/* Images scale consistently */
+.lc2-cell img {
   display: block;
   height: clamp(64px, 10vh, 110px);
   width: auto;
 }
 
-/* === Arrows === */
-.lc-arrow {
+/* ===== Arrows ===== */
+.lc2-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;                  /* always clickable */
+  z-index: 10;                 /* be above everything */
   width: 40px;
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0,0,0,.35);
   color: #fff;
   font-size: 22px;
   display: grid;
   place-items: center;
   cursor: pointer;
 }
-.lc-prev { left: 12px; }
-.lc-next { right: 12px; }
+.lc2-prev { left: 12px; }
+.lc2-next { right: 12px; }
 
-.lc-arrow:hover,
-.lc-arrow:focus-visible {
-  background: rgba(0,0,0,0.55);
+.lc2-arrow:hover,
+.lc2-arrow:focus-visible {
+  background: rgba(0,0,0,.55);
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-.lc-arrow:disabled {
-  opacity: .5;
-  cursor: default;
-}
+.lc2-arrow:disabled { opacity: .5; cursor: default; }
