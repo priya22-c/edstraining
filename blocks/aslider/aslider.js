@@ -1,6 +1,6 @@
-// two-rows-logos-carousel.js
+// logos-carousel-paged.js
 export default function decorate(block) {
-  // --- Keep your original class additions ---
+  // Keep your original class additions
   const first = block.children[0];
   if (!first) return;
   first.classList.add('nav-head');
@@ -8,13 +8,13 @@ export default function decorate(block) {
   const second = block.children[1];
   if (second) second.classList.add('nav-head-2');
 
-  // --- Collect ALL <img> (flatten the block). If no <img>, fall back to direct children ---
-  let nodes = Array.from(block.querySelectorAll('img'));
-  if (!nodes.length) nodes = Array.from(block.children);
+  // 1) Collect logo items. Prefer <img>; if none, use direct children.
+  let sourceNodes = Array.from(block.querySelectorAll('img'));
+  if (!sourceNodes.length) sourceNodes = Array.from(block.children);
 
-  // De-dupe images by src (optional but helpful)
+  // Optional: de‑dupe images by src
   const seen = new Set();
-  const items = nodes.filter((n) => {
+  const items = sourceNodes.filter((n) => {
     if (n.tagName === 'IMG') {
       const src = n.currentSrc || n.src;
       if (seen.has(src)) return false;
@@ -24,92 +24,87 @@ export default function decorate(block) {
   });
   if (!items.length) return;
 
-  // --- Build structure: carousel -> prev + viewport(grid(items)) + next ---
-  const carousel = document.createElement('div');
-  carousel.className = 'lc2-carousel';
-  carousel.tabIndex = 0; // allow keyboard arrows
+  // 2) Build shell
+  const shell = document.createElement('div');
+  shell.className = 'lc-shell';
+  shell.tabIndex = 0; // keyboard arrows
 
   const viewport = document.createElement('div');
-  viewport.className = 'lc2-viewport';
+  viewport.className = 'lc-viewport';
 
-  const grid = document.createElement('ul');
-  grid.className = 'lc2-grid';
+  const track = document.createElement('div');
+  track.className = 'lc-track';
 
-  items.forEach((el) => {
-    const li = document.createElement('li');
-    li.className = 'lc2-cell';
-
-    // MOVE existing content (avoid cloning duplicates)
-    li.appendChild(el);
-    grid.appendChild(li);
-  });
-
-  viewport.appendChild(grid);
+  viewport.appendChild(track);
 
   const prev = document.createElement('button');
   prev.type = 'button';
-  prev.className = 'lc2-arrow lc2-prev';
+  prev.className = 'lc-arrow lc-prev';
   prev.setAttribute('aria-label', 'Previous');
   prev.innerHTML = '‹';
 
   const next = document.createElement('button');
   next.type = 'button';
-  next.className = 'lc2-arrow lc2-next';
+  next.className = 'lc-arrow lc-next';
   next.setAttribute('aria-label', 'Next');
   next.innerHTML = '›';
 
   // Replace original content
-  block.replaceChildren(carousel);
-  carousel.append(prev, viewport, next);
+  block.replaceChildren(shell);
+  shell.append(prev, viewport, next);
 
-  // ---------- Paging logic (2 rows, N columns per page) ----------
-  const totalItems = items.length;
-
-  // Read CSS variables
-  const getVars = () => {
-    const cs = getComputedStyle(carousel);
-    const rows = Number(cs.getPropertyValue('--rows').trim() || 2) || 2;
-    const perView = Number(cs.getPropertyValue('--perView').trim() || 5) || 5; // columns per page
-    return { rows, perView };
+  // 3) Pagination: group items into pages (rows × perView per page)
+  const getConfig = () => {
+    const cs = getComputedStyle(shell);
+    const rows = Number(cs.getPropertyValue('--rows').trim() || 1) || 1;      // default 1 row
+    const perView = Number(cs.getPropertyValue('--perView').trim() || 5) || 5; // default 5 per row
+    const gapX = cs.getPropertyValue('--gapX').trim();
+    const gapY = cs.getPropertyValue('--gapY').trim();
+    return { rows, perView, gapX, gapY };
   };
 
-  let page = 0; // 0-based page index
+  function buildPages() {
+    track.innerHTML = '';
+    const { rows, perView } = getConfig();
+    const pageSize = rows * perView;
+    const total = items.length;
+    const pagesCount = Math.max(1, Math.ceil(total / pageSize));
 
-  function totalPages() {
-    const { rows, perView } = getVars();
-    const itemsPerPage = rows * perView;
-    const pages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-    return pages;
+    let idx = 0;
+    for (let p = 0; p < pagesCount; p += 1) {
+      const page = document.createElement('ul');
+      page.className = 'lc-page';
+      // Fill this page with up to pageSize items
+      for (let i = 0; i < pageSize && idx < total; i += 1, idx += 1) {
+        const li = document.createElement('li');
+        li.className = 'lc-cell';
+        // MOVE the existing node (no clone) to avoid duplicates
+        li.appendChild(items[idx]);
+        page.appendChild(li);
+      }
+      track.appendChild(page);
+    }
+  }
+
+  buildPages();
+
+  // 4) Sliding logic — page-by-page
+  let page = 0;
+
+  function pagesTotal() {
+    return track.children.length || 1;
   }
 
   function goTo(p) {
-    const pages = totalPages();
-    page = Math.max(0, Math.min(p, pages - 1));
-    // Slide by full viewport width per page
-    const x = page * viewport.clientWidth;
-    grid.style.transform = `translateX(${-x}px)`;
-
-    // Enable/disable arrows
+    const max = pagesTotal() - 1;
+    page = Math.max(0, Math.min(p, max));
+    track.style.transform = `translateX(${-page * 100}%)`;
     prev.disabled = page === 0;
-    next.disabled = page === pages - 1;
+    next.disabled = page === max;
   }
 
-  // Recompute on resize to keep pages aligned
-  const onResize = () => goTo(page);
-  window.addEventListener('resize', onResize, { passive: true });
-
-  // Clicks
   prev.addEventListener('click', () => goTo(page - 1));
   next.addEventListener('click', () => goTo(page + 1));
 
-  // Keyboard
-  carousel.addEventListener('keydown', (e) => {
+  shell.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(page - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(page + 1); }
-  });
-
-  // Init (enable animation after first paint)
-  goTo(0);
-  requestAnimationFrame(() => grid.classList.add('lc2-animated'));
-}
-``
