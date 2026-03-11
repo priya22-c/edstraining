@@ -1,12 +1,17 @@
+// logos-carousel.js
 export default function decorate(block) {
-  // Mark first two (as you previously needed)
+  // Mark first two as you originally needed
   const first = block.children[0];
   if (!first) return;
   first.classList.add('nav-head');
+
   const second = block.children[1];
   if (second) second.classList.add('nav-head-2');
 
-  // 1) Build structure: wrapper -> viewport -> track -> slides
+  // Collect the *direct children* of the block as slides (no duplication)
+  const originals = Array.from(block.children);
+
+  // Build structure: wrapper -> viewport -> track -> slide(s)
   const wrapper = document.createElement('div');
   wrapper.className = 'logos-carousel';
 
@@ -16,55 +21,74 @@ export default function decorate(block) {
   const track = document.createElement('div');
   track.className = 'logos-track';
 
-  // Move all current children into the track as slides
-  const slides = Array.from(block.children);
-  slides.forEach((el) => {
+  // Move original children into horizontal slides
+  originals.forEach((node) => {
+    // Wrap each existing child once
     const slide = document.createElement('div');
     slide.className = 'logo-slide';
-    // move original child into slide
-    slide.appendChild(el);
+    slide.appendChild(node);      // MOVE (not clone) to avoid duplicates
     track.appendChild(slide);
   });
 
   viewport.appendChild(track);
   wrapper.appendChild(viewport);
 
-  // 2) Arrows
+  // Arrows
   const prev = document.createElement('button');
-  prev.className = 'logos-arrow logos-prev';
   prev.type = 'button';
+  prev.className = 'logos-arrow logos-prev';
   prev.setAttribute('aria-label', 'Previous');
   prev.innerHTML = '‹';
 
   const next = document.createElement('button');
-  next.className = 'logos-arrow logos-next';
   next.type = 'button';
+  next.className = 'logos-arrow logos-next';
   next.setAttribute('aria-label', 'Next');
   next.innerHTML = '›';
 
-  wrapper.appendChild(prev);
-  wrapper.appendChild(next);
+  wrapper.append(prev, next);
 
-  // Put wrapper back into the block
+  // Replace block content with our carousel
   block.innerHTML = '';
   block.appendChild(wrapper);
 
-  // 3) Logic: scroll by one slide width on click
-  const getSlideWidth = () => {
-    const anySlide = track.querySelector('.logo-slide');
-    return anySlide ? anySlide.getBoundingClientRect().width : 0;
+  // ---- Behavior: slide “page” by page ----
+  const slides = Array.from(track.children);
+  if (slides.length === 0) return;
+
+  // Compute sizes
+  const getSizes = () => {
+    const vpRect = viewport.getBoundingClientRect();
+    const slideRect = slides[0].getBoundingClientRect();
+    const slideW = slideRect.width || 1; // avoid divide by zero
+    const perView = Math.max(1, Math.floor(vpRect.width / slideW)); // items visible
+    const maxPage = Math.max(0, Math.ceil(slides.length / perView) - 1);
+    return { slideW, perView, maxPage, vpW: vpRect.width };
   };
 
-  // Keep scroll snapping nice even if resized
-  let slideW = getSlideWidth();
-  window.addEventListener('resize', () => { slideW = getSlideWidth(); });
+  let page = 0;
+  let sizes = getSizes();
 
-  prev.addEventListener('click', () => {
-    viewport.scrollBy({ left: -slideW, behavior: 'smooth' });
-  });
-  next.addEventListener('click', () => {
-    viewport.scrollBy({ left: slideW, behavior: 'smooth' });
+  const goToPage = (p) => {
+    page = Math.max(0, Math.min(p, sizes.maxPage));
+    const offset = page * sizes.vpW; // page-wise scroll by viewport width
+    viewport.scrollTo({ left: offset, behavior: 'smooth' });
+  };
+
+  // Update sizes on resize
+  const onResize = () => { sizes = getSizes(); goToPage(page); };
+  window.addEventListener('resize', onResize, { passive: true });
+
+  // Arrow actions
+  prev.addEventListener('click', () => goToPage(page - 1));
+  next.addEventListener('click', () => goToPage(page + 1));
+
+  // Keyboard (optional)
+  wrapper.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goToPage(page - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); goToPage(page + 1); }
   });
 
-  // Optional: drag/trackpad friendly (no extra code needed; native scroll)
+  // Initialize (ensure starting at page 0)
+  goToPage(0);
 }
