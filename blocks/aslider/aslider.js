@@ -1,10 +1,10 @@
-// logos-animated-carousel.js
+// logos-animated-carousel-stable.js
 export default function decorate(block) {
-  // 1) Collect all <img> inside the block (flatten any nested structures)
+  // 1) Collect all <img> (flatten the block)
   const imgs = Array.from(block.querySelectorAll('img'));
   if (!imgs.length) return;
 
-  // 2) De-duplicate by src (in case the same set appears twice)
+  // 2) Deduplicate by src
   const seen = new Set();
   const uniqueImgs = imgs.filter((img) => {
     const src = img.currentSrc || img.src;
@@ -26,7 +26,7 @@ export default function decorate(block) {
   uniqueImgs.forEach((img) => {
     const li = document.createElement('li');
     li.className = 'logo-item';
-    li.appendChild(img); // MOVE the existing <img> (no cloning)
+    li.appendChild(img); // MOVE existing img
     track.appendChild(li);
   });
 
@@ -44,7 +44,7 @@ export default function decorate(block) {
   next.setAttribute('aria-label', 'Next');
   next.innerHTML = '›';
 
-  // Replace the block content
+  // Replace old content
   block.replaceChildren(carousel);
   carousel.append(prev, viewport, next);
 
@@ -54,70 +54,68 @@ export default function decorate(block) {
 
   // Read how many items per view from CSS custom property (fallback 5)
   const getPerView = () => {
-    const val = getComputedStyle(carousel).getPropertyValue('--perView').trim();
-    const n = Number(val || 5);
+    const raw = getComputedStyle(carousel).getPropertyValue('--perView').trim();
+    const n = Number(raw || 5);
     return Number.isFinite(n) && n > 0 ? n : 5;
   };
 
-  // Compute px step = itemWidth + gap so translateX is accurate
-  let index = 0; // left-most visible item
-  let step = 0;  // how many pixels to move for 1 item
-  let maxIndex = 0;
+  let index = 0;      // left-most visible item (0-based)
+  let step = 0;       // px to move per ONE item (item width + gap)
+  let maxIndex = 0;   // last valid left-most index
 
   function computeSizes() {
-    // width of one item
+    // Wait for layout — if width is 0, try again on next frame
     const firstItem = items[0];
     const rect = firstItem.getBoundingClientRect();
-    const itemW = rect.width;
+    if (rect.width === 0) {
+      requestAnimationFrame(computeSizes);
+      return;
+    }
 
-    // gap in px
     const cs = getComputedStyle(track);
-    // 'gap' is standard; for safety also try columnGap
     const gap = parseFloat(cs.gap || cs.columnGap || '0') || 0;
 
-    step = itemW + gap;
+    step = rect.width + gap;
+
     const perView = getPerView();
     maxIndex = Math.max(0, total - perView);
+
+    // Clamp index after recompute
+    index = Math.max(0, Math.min(index, maxIndex));
+
+    applyTransform();
   }
 
   function applyTransform() {
     track.style.transform = `translateX(${-index * step}px)`;
-    prev.disabled = index === 0;
-    next.disabled = index === maxIndex;
+    // Disable only if there is nowhere to go
+    prev.disabled = (index === 0);
+    next.disabled = (index === maxIndex);
   }
 
-  // Buttons
+  // Click handlers
   prev.addEventListener('click', () => {
-    index = Math.max(0, index - 1);   // move by ONE item
+    // Move ONE item per click (change to perView for page-by-page)
+    index = Math.max(0, index - 1);
     applyTransform();
   });
 
   next.addEventListener('click', () => {
-    index = Math.min(maxIndex, index + 1); // move by ONE item
+    index = Math.min(maxIndex, index + 1);
     applyTransform();
   });
 
-  // Keyboard support when carousel has focus
+  // Keyboard
   carousel.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); prev.click(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
   });
 
-  // Recompute on resize (responsive)
-  window.addEventListener('resize', () => {
-    const oldStep = step;
-    const oldIndex = index;
-    computeSizes();
-    // Keep the left-most item aligned after resize
-    // recompute translate based on the same index with new step
-    if (step !== oldStep || index !== oldIndex) applyTransform();
-  }, { passive: true });
+  // Recompute on resize
+  window.addEventListener('resize', computeSizes, { passive: true });
 
-  // Initialize
+  // Initialize: first paint without animation, then enable animation
   computeSizes();
-  // Enable smooth transition AFTER first paint so we don't animate the initial set
-  requestAnimationFrame(() => {
-    track.classList.add('animated');   // CSS adds transition when this class exists
-    applyTransform();
-  });
+  requestAnimationFrame(() => track.classList.add('animated'));
 }
+``
