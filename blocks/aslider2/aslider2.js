@@ -1,1 +1,27 @@
-
+export default function decorate(block) {
+ 
+  const container = block.children[0];
+  if (!container) return;
+ 
+  /* main class */
+  container.classList.add("nav-head");
+ 
+  /* create track */
+  const track = document.createElement("div");
+  track.className = "nav-head-2";
+ 
+  const items = [...container.children];
+ 
+  items.forEach((item) => {
+    track.appendChild(item);
+  });
+ 
+  /* clone items for infinite loop */
+  items.forEach((item) => {
+    const clone = item.cloneNode(true);
+    track.appendChild(clone);
+  });
+ 
+  container.appendChild(track);
+ 
+}
