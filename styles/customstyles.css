@@ -1,0 +1,367 @@
+/*
+ * Copyright 2020 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
+/* ========= Variables (tweak as needed) ========= */
+:root {
+  --olive: #a8ae57;           /* accent (matches your reference) */
+  --olive-dark: #98a04a;
+  --text: #111;
+  --muted: #666;
+  --bg: #fff;
+  --border: #e8e8e8;
+  --shadow: 0 8px 24px rgba(0,0,0,.07);
+  --container: 1280px;
+  --gap: 28px;
+  --radius: 12px;
+  --transition: 160ms ease;
+  --ff: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --c-text: #1f2937;            /* field text */
+  --c-muted: #9aa0a6;           /* placeholder */
+  --c-border: #e5e7eb;          /* default border */
+  --c-border-strong: #d1d5db;   /* on hover */
+  --c-focus: #a8ae57;           /* focus accent */
+  --c-shadow: 0 1px 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03);
+  --radius: 10px;
+  --pad-y: 12px;
+  --pad-x: 14px;
+  --gap: 18px;                  /* column gap */
+  --row-gap: 18px;              /* row gap */
+  --maxw: 980px; 
+}
+
+
+
+/* ========= Brand ========= */
+.nav-brand .default-content-wrapper {
+  display: flex; align-items: center;
+}
+.nav-brand picture, .nav-brand img {
+  display: block;
+  height: auto;
+}
+
+
+/* Optional sizing for your logo image */
+.nav-brand img {
+  max-height: 32px; /* adjust to taste */
+  width: auto;
+}
+
+/* ========= Menu / Sections ========= */
+.nav-sections .default-content-wrapper > ul {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* push menu to the right */
+  gap: var(--gap);
+}
+
+.nav-sections li > p {
+  margin: 0;
+  padding: 8px 0;  /* vertical rhythm */
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer; /* your <p> acts like a button */
+  color: #111;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* Add a subtle caret for .nav-drop items */
+.nav-sections .nav-drop > p::after {
+  content: "";
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--olive);
+  display: inline-block;
+  margin-left: 6px;
+  transform: translateY(2px);
+}
+
+/* Hover/active styles (desktop) */
+.nav-sections li > p:hover { color: var(--olive-dark); }
+
+/* ========= Dropdowns (Desktop) ========= */
+.nav-sections .nav-drop {
+  position: relative;
+}
+.nav-sections .nav-drop > ul {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
+  min-width: 240px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 0;
+  opacity: 0; visibility: hidden; transform: translateY(6px);
+  transition: var(--transition);
+  z-index: 10;
+}
+.nav-sections .nav-drop > ul > li {
+  padding: 10px 16px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.nav-sections .nav-drop > ul > li:hover {
+  background: #f7f8f2; color: var(--olive-dark);
+}
+
+/* ========= Support pill (if you keep Support as a normal li) ========= */
+.nav-sections li:last-child > p {
+  background: var(--olive);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  transition: var(--transition);
+}
+.nav-sections li:last-child > p:hover { background: var(--olive-dark); }
+
+@media (max-width: 1024px) {
+  /* Put brand on the left, hamburger on the right, hide the horizontal menu */
+  .nav-brand { order: 1; }
+  .nav-sections { 
+    grid-column: 1 / -1; /* full width row */
+    order: 3;
+    width: 100%;
+  }
+
+  /* collapsed by default */
+  .nav-sections .default-content-wrapper > ul {
+    position: absolute;
+    right: 20px;
+    left: 20px;
+    top: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+  }
+
+  /* expanded when #nav[aria-expanded="true"] */
+  #nav[aria-expanded="true"] .nav-sections .default-content-wrapper > ul {
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+
+  .nav-sections li > p { padding: 12px; }
+
+  /* Make submenus stack within flow on mobile */
+  .nav-sections .nav-drop > ul {
+    position: static;
+    border: 0; box-shadow: none; padding: 0; margin-left: 10px;
+    opacity: 1; visibility: visible; transform: none;
+    display: none; /* collapsed by default on mobile; controlled via aria-expanded */
+  }
+  /* toggle using aria-expanded on the .nav-drop item */
+  .nav-sections .nav-drop[aria-expanded="true"] > ul {
+    display: block;
+  }
+}
+
+/* Slightly smaller phones */
+@media (max-width: 520px) {
+  .nav-brand img { max-height: 28px; }
+}
+/*nav top header changes*/
+.top-nav{
+    padding: 10px 0;
+    background: #a2a84c;
+}
+.top-nav .columns-img-col p{
+    position: absolute;
+    margin-top: -147px;
+}
+.top-nav .columns-img-col img{
+    width: 5%;
+}
+.message-from .columns-wrapper{
+  position: absolute;
+}
+.message-from .customform-wrapper{
+  margin-left: 55%;
+}
+
+/*Custom cards section both*/
+.custom-cards > .cards-wrapper {
+    margin-top: -50px;
+}
+ 
+.custom-cards > .cards-wrapper > .cards > ul > li:hover  {
+    background-color:#98a04a;
+    color: white;
+}
+ 
+.custom-cards > .cards-wrapper > .cards > ul > li > cards-card-image {
+    height:20px;
+    width: 20px;
+    padding: 20px 80px;
+    background: none;
+}
+.custom-cards > .cards-wrapper {
+    border-radius: 20px;
+    border: transparent;
+}
+ 
+.custom-cards > .cards-wrapper > .cards > ul > li > .cards-card-body > p {
+    text-align: center;
+}
+ 
+.cards-container > .default-content-wrapper > h2 {
+    text-align: center;
+}
+.cards-container > .default-content-wrapper > .cards-wrapper > .cards {
+    display:flex;
+    justify-content: center;
+    margin:0 auto;
+}
+ 
+.custom-cards1 > .cards-wrapper > .cards > ul > li:hover {
+    background-color:#98a04a;
+    color: white;;
+}
+ 
+.custom-cards1 > .cards-wrapper > .cards > ul > li > cards-card-image {
+    height:20px;
+    width: 20px;
+    padding: 20px 80px;
+    background: none;
+}
+ .custom-cards1 > .cards-wrapper {
+    border-radius: 20px;
+    border: transparent;
+}
+ 
+.custom-cards1 > .cards-wrapper > .cards > ul > li > .cards-card-body > h2{
+    text-align: center;
+}
+
+/* ========= Form shell & grid ========= */
+form[data-action="/contactform"]{
+  font-family: var(--ff);
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* left | right */
+  gap: var(--row-gap) var(--gap);
+}
+
+/* Each wrapper is a grid item */
+form[data-action="/contactform"] .field-wrapper{
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make message + submit span both columns */
+form[data-action="/contactform"] .form-textarea-wrapper,
+form[data-action="/contactform"] .form-submit-wrapper{
+  grid-column: 1 / -1;
+}
+
+/* Preserve the left/right order from the image */
+form[data-action="/contactform"] .form-name    { grid-column: 1; }
+form[data-action="/contactform"] .form-email   { grid-column: 2; }
+form[data-action="/contactform"] .form-phone   { grid-column: 1; }
+form[data-action="/contactform"] .form-subject { grid-column: 2; }
+
+/* ========= Labels (visually hidden; keep for a11y) ========= */
+form[data-action="/contactform"] .field-label{
+  position: absolute !important;
+  width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);border:0;
+}
+
+/* ========= Fields ========= */
+form[data-action="/contactform"] input[type="text"],
+form[data-action="/contactform"] input[type="email"],
+form[data-action="/contactform"] textarea{
+  width: 100%;
+  padding: var(--pad-y) var(--pad-x);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background:#fff;
+  color: var(--c-text);
+  box-shadow: var(--c-shadow);
+  transition: border-color .16s ease, box-shadow .16s ease;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+form[data-action="/contactform"] input::placeholder,
+form[data-action="/contactform"] textarea::placeholder{
+  color: var(--c-muted);
+}
+
+form[data-action="/contactform"] input:hover,
+form[data-action="/contactform"] textarea:hover{
+  border-color: var(--c-border-strong);
+}
+
+form[data-action="/contactform"] input:focus,
+form[data-action="/contactform"] textarea:focus{
+  outline: none;
+  border-color: var(--c-focus);
+  box-shadow: 0 0 0 4px rgba(168,174,87,.16);
+}
+
+/* Textarea sizing similar to screenshot */
+form[data-action="/contactform"] textarea{
+  min-height: 220px;   /* adjust to taste */
+  resize: vertical;
+}
+
+/* ========= Submit button ========= */
+form[data-action="/contactform"] .btn{
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  background: var(--c-focus);
+  color:#fff;
+  font-weight:700;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: filter .16s ease, transform .06s ease;
+}
+form[data-action="/contactform"] .btn:hover{ filter: brightness(.95); }
+form[data-action="/contactform"] .btn:active{ transform: translateY(1px); }
+
+/* Align the button to the left (like the image) on wide screens */
+form[data-action="/contactform"] .form-submit{ justify-self: start; }
+
+/* ========= Responsive: stack on small screens ========= */
+@media (max-width: 900px){
+  form[data-action="/contactform"]{
+    grid-template-columns: 1fr;      /* single column */
+  }
+  form[data-action="/contactform"] .field-wrapper{
+    grid-column: 1 / -1 !important;  /* full width */
+  }
+  form[data-action="/contactform"] .btn{ width: 100%; }
+  form[data-action="/contactform"] .form-submit{ justify-self: stretch; }
+}
+
+/* ========= Optional page-level heading near the form ========= */
+/* Matches the type treatment in the screenshot */
+.form-heading{
+  max-width: var(--maxw);
+  margin: 0 auto 14px;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--c-text);
+}
