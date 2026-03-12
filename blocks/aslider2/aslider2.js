@@ -4,11 +4,11 @@ export default function decorate(block) {
   if (!container) return;
  
   /* main class */
-  container.classList.add("nav-head");
+  container.classList.add("nav-head-1");
  
   /* create track */
   const track = document.createElement("div");
-  track.className = "nav-head-2";
+  track.className = "nav-head-3";
  
   const items = [...container.children];
  
