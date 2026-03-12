@@ -16,11 +16,6 @@ export default function decorate(block) {
     track.appendChild(item);
   });
  
-  /* clone items for infinite loop */
-  items.forEach((item) => {
-    const clone = item.cloneNode(true);
-    track.appendChild(clone);
-  });
  
   container.appendChild(track);
  
