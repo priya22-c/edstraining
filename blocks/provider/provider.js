@@ -1,21 +1,19 @@
 export default function decorate(block) {
-  const container = block.children[0];
-  const provider-wrapper = block.children[1];
-  if (!container || !providerwrapper) return;
-  /* main container */
-  container.classList.add("provider-container");
-  /* wrapper for members */
-  providerwrapper.classList.add("provider-wrapper");
-  const members = providerwrapper.children;
-  [...members].forEach((member) => {
-    member.classList.add("expert-card");
-    const img = member.querySelector("picture");
-    const name = member.querySelector("h3");
-    if (img) {
-      img.classList.add("expert-image");
-    }
-    if (name) {
-      name.classList.add("expert-name");
-    }
-  });
+ 
+  const wrapper = block.children[0];
+  if (!wrapper) return;
+ 
+  wrapper.classList.add('provider-head');
+ 
+  const firstDiv = wrapper.children[0];
+  const secondDiv = wrapper.children[1];
+ 
+  if (firstDiv) {
+    firstDiv.classList.add('provider-title');
+  }
+ 
+  if (secondDiv) {
+    secondDiv.classList.add('provider-description');
+  }
+ 
 }
