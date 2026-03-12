@@ -1,8 +1,27 @@
 export default function decorate(block) {
  
-  const first = block.children[0];
-  if (!first) return;
-  first.classList.add('tab-head');
+  const container = block.children[0];
+  if (!container) return;
  
-  const second = block.children[1];
-  if (second) second.classList.add('tab-head-2');
+  /* main class */
+  container.classList.add("tab-head-1");
+ 
+  /* create track */
+  const track = document.createElement("div");
+  track.className = "tab-head-3";
+ 
+  const items = [...container.children];
+ 
+  items.forEach((item) => {
+    track.appendChild(item);
+  });
+ 
+  /* clone items for infinite loop */
+  items.forEach((item) => {
+    const clone = item.cloneNode(true);
+    track.appendChild(clone);
+  });
+ 
+  container.appendChild(track);
+ 
+}
