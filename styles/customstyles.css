@@ -191,17 +191,19 @@ header nav .nav-sections .nav-drop[aria-expanded="true"]::after
 .custom-cards > .cards-wrapper {
     margin-top: -50px;
 }
- 
+ .custom-cards > .cards-wrapper > .cards{
+     text-align:center;
+ }
+.custom-cards > .cards-wrapper > .cards > ul >li {
+    height:200px;
+}
 .custom-cards > .cards-wrapper > .cards > ul > li:hover  {
     background-color:#98a04a;
     color: white;
 }
  
-.custom-cards > .cards-wrapper > .cards > ul > li > cards-card-image {
-    height:20px;
-    width: 20px;
-    padding: 20px 80px;
-    background: none;
+.custom-cards > .cards-wrapper > .cards > ul > li > .cards-card-image img{
+    width: 130px;
 }
 .custom-cards > .cards-wrapper {
     border-radius: 20px;
@@ -364,3 +366,4 @@ form[data-action="/contactform"] .form-submit{ justify-self: start; }
     color: white;
 }
 /*header section image changes*/
+
