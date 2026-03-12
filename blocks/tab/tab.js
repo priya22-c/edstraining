@@ -6,3 +6,4 @@ export default function decorate(block) {
  
   const second = block.children[1];
   if (second) second.classList.add('tab-head-2');
+}
