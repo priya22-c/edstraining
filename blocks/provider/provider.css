@@ -1,1 +1,16 @@
+.provider {
+.provider-head
+    {
 
+        display:flex;
+        width:1024px;
+        gap:2%;
+        .provider-title{
+            width:40%;
+        }
+
+    .provider-description{
+                width:60%;
+        }
+    } 
+}
