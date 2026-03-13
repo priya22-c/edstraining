@@ -193,6 +193,7 @@ header nav .nav-sections .nav-drop[aria-expanded="true"]::after
 }
  .custom-cards > .cards-wrapper > .cards{
      text-align:center;
+    padding-top: 56px;
  }
 .custom-cards > .cards-wrapper > .cards > ul >li {
     height:200px;
@@ -366,4 +367,5 @@ form[data-action="/contactform"] .form-submit{ justify-self: start; }
     color: white;
 }
 /*header section image changes*/
+
 
