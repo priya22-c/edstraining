@@ -1,3 +1,20 @@
+/* css */
+
+/* Base block */
+.carousel1 {
+  position: relative; /* needed for abs. positioned indicators/nav */
+  --dot-size: 12px;
+  --dot-active-size: 28px;     /* hero style */
+  --dot-color: #8F8F8F;
+  --dot-active-color: var(--text-color, #1a1a1a);
+  --nav-bg: rgba(19, 19, 19, 0.25);
+  --nav-bg-hover: rgba(19, 19, 19, 0.75);
+  --card-bg: rgba(19, 19, 19, 0.75);
+  --card-color: #fff;
+  --card-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Container & lists */
 .carousel1 .carousel1-slides-container {
   position: relative;
 }
@@ -13,23 +30,24 @@
   display: flex;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
-  overflow: scroll clip;
+  overflow: auto; /* allow mouse/touch drag */
 }
 
 .carousel1 .carousel1-slides::-webkit-scrollbar {
   display: none;
 }
 
+/* Slides */
 .carousel1 .carousel1-slide {
   flex: 0 0 100%;
   scroll-snap-align: start;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* image then content stacked by default */
   align-items: flex-start;
   justify-content: center;
   position: relative;
   width: 100%;
-  min-height: min(50vw, calc(100dvh - var(--header-height)));
+  min-height: min(50vw, calc(100dvh - var(--header-height, 0px)));
 }
 
 .carousel1 .carousel1-slide:has(.carousel1-slide-content[data-align='center']) {
@@ -40,6 +58,7 @@
   align-items: flex-end;
 }
 
+/* Full-bleed image */
 .carousel1 .carousel1-slide .carousel1-slide-image picture {
   position: absolute;
   inset: 0;
@@ -51,42 +70,69 @@
   object-fit: cover;
 }
 
+/* Overlay card */
 .carousel1 .carousel1-slide .carousel1-slide-content {
   z-index: 1;
-  margin: 68px;
-  padding: 16px;
-  color: white;
-  background-color: rgb(19 19 19 / 75%);
+  margin: 48px;
+  padding: 20px 24px;
+  color: var(--card-color);
+  background-color: var(--card-bg);
+  box-shadow: var(--card-shadow);
   position: relative;
   width: var(--slide-content-width, auto);
+  border-radius: 6px;
+}
+
+.carousel1 .carousel1-slide .carousel1-slide-content h1,
+.carousel1 .carousel1-slide .carousel1-slide-content h2,
+.carousel1 .carousel1-slide .carousel1-slide-content h3,
+.carousel1 .carousel1-slide .carousel1-slide-content h4,
+.carousel1 .carousel1-slide .carousel1-slide-content h5,
+.carousel1 .carousel1-slide .carousel1-slide-content h6 {
+  margin: 0 0 8px;
+}
+
+/* Indicators: centered below slide area, transparent background */
+.carousel1 .carousel1-indicators-nav {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 
 .carousel1 .carousel1-slide-indicators {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 12px;
-  padding: 12px;
-  background-color: var(--light-color);
+  align-items: center;
+  gap: 8px;
   line-height: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .carousel1 .carousel1-slide-indicator button {
-  width: 24px;
-  height: 24px;
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin: 0;
   padding: 0;
-  border-radius: 50%;
-  background-color: #8F8F8F;
-  transition: background-color 0.2s;
+  border-radius: 999px;
+  background-color: var(--dot-color);
+  transition: background-color 0.2s, width 0.2s;
+  border: 0;
 }
 
 .carousel1 .carousel1-slide-indicator button:disabled,
 .carousel1 .carousel1-slide-indicator button:hover,
 .carousel1 .carousel1-slide-indicator button:focus-visible {
-  background-color: var(--text-color);
+  background-color: var(--dot-active-color);
 }
 
+/* Active dot slightly elongated (hero look) */
+.carousel1:not([data-variant="testimonials"]) .carousel1-slide-indicator button:disabled {
+  width: var(--dot-active-size);
+}
+
+/* Navigation arrows */
 .carousel1 .carousel1-navigation-buttons {
   position: absolute;
   top: 50%;
@@ -96,10 +142,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 1;
+  z-index: 2;
 }
 
-/* stylelint-disable-next-line no-descending-specificity */
+/* round buttons with subtle ring and chevrons */
 .carousel1 .carousel1-navigation-buttons button {
   position: relative;
   width: 44px;
@@ -107,19 +153,22 @@
   margin: 0;
   border-radius: 50%;
   padding: 0;
-  background-color: rgb(19 19 19 / 25%);
-  transition: background-color 0.2s;
+  background-color: #fff;               /* ring-on-white look */
+  border: 1px solid #cfcfcf;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .carousel1 .carousel1-navigation-buttons button:hover,
 .carousel1 .carousel1-navigation-buttons button:focus-visible {
-  background-color: rgb(19 19 19 / 75%);
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
 
 .carousel1 .carousel1-navigation-buttons button::after {
   display: block;
   content: '';
-  border: 2px solid;
+  border: 2px solid currentColor;
   border-bottom: 0;
   border-left: 0;
   height: 12px;
@@ -128,12 +177,92 @@
   top: 50%;
   left: calc(50% + 2px);
   transform: translate(-50%, -50%) rotate(-135deg);
+  color: #333;
 }
 
 .carousel1 .carousel1-navigation-buttons button.slide-next::after {
   transform: translate(-50%, -50%) rotate(45deg);
   left: calc(50% - 2px);
 }
+
+/* --------------------------- */
+/* Variant: HERO (reference 1) */
+/* --------------------------- */
+
+.carousel1[data-variant="hero"] .carousel1-slide .carousel1-slide-content {
+  --slide-content-width: clamp(260px, 40vw, 560px);
+  margin: 64px;
+  background-color: rgba(19, 19, 19, 0.80); /* a touch darker */
+}
+
+/* ------------------------------- */
+/* Variant: TESTIMONIALS (ref. 2)  */
+/* Two cards visible on desktop    */
+/* ------------------------------- */
+
+.carousel1[data-variant="testimonials"] .carousel1-slides {
+  gap: 24px; /* nice gutter between cards */
+  padding: 8px 0 56px; /* room for indicators */
+}
+
+/* Show larger cards and two per view on >= 900px */
+.carousel1[data-variant="testimonials"] .carousel1-slide {
+  flex: 0 0 86%;              /* mobile: single card with margins */
+  min-height: auto;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+@media (width >= 900px) {
+  .carousel1[data-variant="testimonials"] .carousel1-slide {
+    flex: 0 0 calc(50% - 12px); /* two per view */
+  }
+}
+
+.carousel1[data-variant="testimonials"] .carousel1-slide .carousel1-slide-image picture {
+  position: static; /* image is part of the card, not background */
+}
+
+.carousel1[data-variant="testimonials"] .carousel1-slide .carousel1-slide-content,
+.carousel1[data-variant="testimonials"] .carousel1-slide {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #eef0e6;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(111, 133, 77, 0.08);
+}
+
+.carousel1[data-variant="testimonials"] .carousel1-slide .carousel1-slide-content {
+  margin: 0;                 /* inside the card */
+  padding: 24px;
+  background: transparent;   /* card is already white */
+  box-shadow: none;
+  width: auto;
+}
+
+/* compact avatar in the content column (if you place img there) */
+.carousel1[data-variant="testimonials"] .carousel1-slide .carousel1-slide-content img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Indicators: soft olive pill for active state */
+.carousel1[data-variant="testimonials"] {
+  --dot-color: #d7dcc5;
+  --dot-active-color: #b0bb7a;     /* olive */
+  --dot-size: 10px;
+  --dot-active-size: 36px;         /* longer pill */
+}
+
+.carousel1[data-variant="testimonials"] .carousel1-indicators-nav {
+  bottom: 4px; /* a bit lower like the reference */
+}
+
+/* --------------------------- */
+/* Responsive refinements      */
+/* --------------------------- */
 
 @media (width >= 600px) {
   .carousel1 .carousel1-navigation-buttons {
@@ -143,7 +272,6 @@
 
   .carousel1 .carousel1-slide .carousel1-slide-content {
     --slide-content-width: calc((100% - 184px) / 2);
-
     margin: 92px;
   }
 
@@ -151,3 +279,4 @@
     --slide-content-width: auto;
   }
 }
+``
