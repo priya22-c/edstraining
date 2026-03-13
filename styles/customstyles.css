@@ -368,4 +368,9 @@ form[data-action="/contactform"] .form-submit{ justify-self: start; }
 }
 /*header section image changes*/
 
+.carousel .carousel-slide-indicators{
+    display:none;
+}
+
+
 
