@@ -65,9 +65,7 @@
 }
 
 .carousel1 .carousel1-slide .carousel1-slide-image picture > img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
+  
 }
 
 /* Overlay card */
